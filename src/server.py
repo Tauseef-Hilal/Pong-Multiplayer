@@ -5,7 +5,7 @@
 """
 
 import time
-from select import select
+# from select import select
 from threading import Thread
 from multiprocessing import Process
 from sys import exit
@@ -19,8 +19,7 @@ class Server(Network):
     def __init__(self):
         super().__init__(server=True)
         self._games = []
-        self._server.bind(self._ADDR)
-        # self._server.setblocking(False)
+        # self.server.setblocking(False)
         print("[STATUS] Server Started!")
 
         # Create a new process to listen
@@ -53,71 +52,85 @@ class Server(Network):
 
     def _listen(self):
         print("[SERVER] Waiting for Clients...")
-        self._server.listen(10)
+        self.server.listen(10)
 
         new_game = False
         while True:
-            conn, addr = self._server.accept()
+            conn, addr = self.server.accept()
             # conn.setblocking(False)
-            print(f"[NEW CONNECTION] Connected to Client {addr}")
+            print(f"[NEW CONNECTION] Connected to Client: {addr}")
 
             # Iterate through self._games and find
             # the game with a single player
-            for game in self._games:
-                if len(game.players) % 2 == 0:
+            for game_dict in self._games:
+                if len(game_dict["game"].players) % 2 == 0:
                     continue
                 else:
                     # Append player to the game's list
-                    game.players.append(Player(""))
-                    game.clients.append(conn)
+                    game_dict["game"].players.append(Player("R"))
+                    game_dict["clients"].append(conn)
                     break
             else:
                 # Add client to a new game
+                game_dict = {}
 
                 # Create a Game obj
                 game_id = len(self._games) + 1
                 game = Game(game_id)
 
                 # Create a Player obj and add it to 'game.players' list
-                game.players.append(Player(""))
-                game.clients.append(conn)
+                game.players.append(Player("L"))
+
+                game_dict["game"] = game
+                game_dict["clients"] = [conn]
 
                 # Update the game_dict and add it to self._games
-                self._games.append(game)
+                self._games.append(game_dict)
                 new_game = True
 
             # Create a new thread for new games
             if new_game:
                 thread = Thread(target=self._handle_game,
-                                args=(game,),
+                                args=(game_dict,),
                                 daemon=True,
                                 name=f"Thread (GameID: {game_id})")
                 thread.start()
                 new_game = False
 
-    def _handle_game(self, game):
+    def _handle_game(self, game_dict):
         """Handle one game"""
-        pos = [0, 0]
+        game = game_dict["game"]
+        players = [0, 0]
+        temp = 1
         while True:
             # clients, _, _ = select(game.clients, [], [], 0.5)
-            clients = game.clients
+            clients = game_dict["clients"]
 
-            for client in clients:
-                data = client.recv(1024)
-                if not data:
-                    game.players.pop(clients.index(client))
-                    game.clients.remove(client)
+            for client_idx, client in enumerate(clients):
+                try:
+                    data = self.receive(conn=client)
+                except EOFError:
+                    data = None
+
+                if data:
+                    # print(type(data), data)
+
+                    if data == "!get":
+                        # print("sent player")
+                        players[client_idx] = game.players[client_idx]
+                        temp = self.send(players[client_idx], client)
+                    else:
+                        # print(players)
+                        players[client_idx] = data
+                        # print(players[int(not client_idx)])
+                        temp = self.send(players[int(not client_idx)], client)
+
+                if not data or temp == 0:
+                    game.players.pop(client_idx)
+                    players[client_idx] = 0
+                    game_dict["clients"].remove(client)
+                    print(f"[DISCONNECTED] {client.getpeername()}")
                     client.close()
-                else:
-                    data = int(data.decode("utf-8"))
-                    pos[clients.index(client)] = data
-                    r = client.send(
-                        f"{pos[int(not (clients.index(client)))]}".encode
-                        ("utf-8"))
-                    if r == 0:
-                        game.players.pop(clients.index(client))
-                        game.clients.remove(client)
-                        client.close()
 
 
 def main():
