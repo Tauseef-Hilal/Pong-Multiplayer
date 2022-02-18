@@ -1,12 +1,12 @@
 """
-    Network class
+    Classes -> [Network, Player, Game, Ball]
 """
 
 import socket
 import pickle
-from pygame import (Rect,
-                    K_w,
-                    K_s)
+from random import choice
+from constants import WIDTH, HEIGHT
+from pygame import Rect, K_w, K_s
 
 
 class Network:
@@ -21,7 +21,11 @@ class Network:
             self.server.bind(self._ADDR)
         else:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.connect((socket.gethostname(), 5050))
+
+            try:
+                self.socket.connect((socket.gethostname(), 5050))
+            except ConnectionRefusedError:
+                print("[ERROR] Server down")
 
     def send(self, obj, conn=None) -> int:
         if not self._is_server:
@@ -51,7 +55,7 @@ class Player:
                  "score"]
 
     def __init__(self, name, player_id) -> None:
-        self.id = player_id
+        self.id = name + "_#" + player_id
         self.name = name
         self.paddle = None
         self.score = 0              # Not implemented yet
@@ -61,7 +65,7 @@ class Player:
 
         if keys[K_w] and self.paddle.top > 0:
             self.paddle.y -= 6
-        elif keys[K_s] and self.paddle.bottom < 600:
+        elif keys[K_s] and self.paddle.bottom < HEIGHT:
             self.paddle.y += 6
 
     def __eq__(self, __o: object) -> bool:
@@ -92,18 +96,18 @@ class Game:
 class Ball(Rect):
     "Ball class"
 
-    x_velocity = 5
-    y_velocity = 5
+    x_velocity = 6 * choice((1, -1))
+    y_velocity = 6 * choice((1, -1))
 
     def animate(self):
         "Animate the ball"
 
-        if self.left <= 0 or self.right >= 800:
-            self.x_velocity = -self.x_velocity
+        if self.left <= 0 or self.right >= WIDTH:
+            self.x_velocity = 0
         self.x += self.x_velocity
 
-        if self.top <= 0 or self.bottom >= 600:
-            self.y_velocity = -self.y_velocity
+        if self.top <= 0 or self.bottom >= HEIGHT:
+            self.y_velocity *= -1
         self.y += self.y_velocity
 
     def __repr__(self) -> str:

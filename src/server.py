@@ -5,13 +5,9 @@
 """
 
 import time
-# from select import select
-from threading import Thread
-from multiprocessing import Process
 from sys import exit
-from classes import (Network,
-                     Player,
-                     Game)
+from threading import Thread
+from classes import Network, Player, Game
 
 
 class Server(Network):
@@ -20,7 +16,6 @@ class Server(Network):
         super().__init__(server=True)
         self._games = []
         self._client_count = 0
-        # self.server.setblocking(False)
         print("[STATUS] Server Started!")
 
         # Create a new thread for listening
@@ -60,9 +55,8 @@ class Server(Network):
 
         new_game = False
         while True:
-            conn, addr = self.server.accept()
-            # conn.setblocking(False)
-            print(f"[NEW CONNECTION] Connected to Client: {addr}")
+            conn, _ = self.server.accept()
+            print(f"[INFO] Client {conn.getsockname()} connected.")
 
             # Iterate through self._games and find
             # the game with a single player
@@ -72,7 +66,7 @@ class Server(Network):
                 else:
                     # Create player obj and append it to 'game.players' list
                     player_name = "X" if game.players[-1].name == "Y" else "Y"
-                    player_id = self._client_count + 1
+                    player_id = f"[{self._client_count + 1}]"
 
                     game.players.append(Player(player_name, player_id))
                     game.clients.append(conn)
@@ -85,7 +79,7 @@ class Server(Network):
                 game = Game(game_id)
 
                 # Create a Player obj and add it to 'game.players' list
-                game.players.append(Player("X", self._client_count + 1))
+                game.players.append(Player("X", f"[{self._client_count + 1}]"))
                 game.clients = [conn]
 
                 # Add the game to self._games
@@ -129,7 +123,9 @@ class Server(Network):
                 if not data or temp == 0:
                     players[client_idx] = 0
 
-                    print(f"[DISCONNECTED] {client.getpeername()}")
+                    print("[INFO] Client",
+                          f"{client.getsockname()} disconnected.")
+
                     game.players.pop(client_idx)
                     game.clients.remove(client)
                     client.close()
