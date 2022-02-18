@@ -42,30 +42,36 @@ class Network:
 class Player:
     """Handle a player"""
 
-    __slots__ = ["name",
+    __slots__ = ["id",
+                 "name",
                  "paddle",
                  "score"]
 
-    def __init__(self, name) -> None:
+    def __init__(self, name, player_id) -> None:
+        self.id = player_id
         self.name = name
         self.paddle = None
         self.score = 0
 
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, Player):
+            return self.id == __o.id
+        return False
+
     def __repr__(self) -> str:
-        return f"<Player => NAME: {self.name}, SCORE: {self.score}," \
-            f" PADDLE: {self.paddle}>"
+        return f"<Player => ID: {self.id}, SCORE: {self.score}>"
 
 
 class Game:
     """Game class"""
 
     __slots__ = ["id",
-                 #  "clients",
+                 "clients",
                  "players"]
 
     def __init__(self, id) -> None:
         self.id = id
-        # self.clients = []
+        self.clients = []
         self.players = []
 
     def __repr__(self) -> str:

@@ -16,8 +16,8 @@ c = Network(server=False)
 c.send("!get")
 player = c.receive()
 
-PADDLE_WIDTH = 10
-player.paddle = pygame.Rect(0, 260, PADDLE_WIDTH, 80)
+PADDLE_WIDTH, PADDLE_HEIGHT = 10, 80
+player.paddle = pygame.Rect(0, 260, PADDLE_WIDTH, PADDLE_HEIGHT)
 # right_paddle = pygame.Rect(WIDTH - PADDLE_WIDTH, 0, PADDLE_WIDTH, 80)
 
 # player.paddle.centery = 300
@@ -65,9 +65,13 @@ while True:
     ball.y += ball_y
 
     opponent = handle_client(player)
-    if opponent and opponent.paddle:
-        print(opponent)
+    if opponent and opponent.paddle and opponent != player:
+        opponent.paddle.right = WIDTH
         pygame.draw.rect(WIN, "white", opponent.paddle)
+    else:
+        pygame.draw.rect(WIN, "white", pygame.Rect(790, 260,
+                                                   PADDLE_WIDTH,
+                                                   PADDLE_HEIGHT))
     pygame.draw.rect(WIN, "white", player.paddle)
     pygame.draw.rect(WIN, "white", ball, border_radius=20)
 
