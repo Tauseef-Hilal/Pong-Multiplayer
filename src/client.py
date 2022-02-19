@@ -16,6 +16,7 @@ player: Player = client.receive()
 
 # Create pygame.Rect obj (Paddle) for the player
 player.paddle = pygame.Rect(MARGIN, 0, PADDLE_WIDTH, PADDLE_HEIGHT)
+player.paddle.left = MARGIN
 player.paddle.centery = HEIGHT // 2
 
 # Create a Ball obj
@@ -28,9 +29,9 @@ def display_score(player, opponent=None):
     """Display players' scores"""
 
     # Create Surfaces for scores
-    PLAYER_SCORE = FONT.render(f"   {player.score}   ",
+    PLAYER_SCORE = FONT.render(f"  {player.score}  ",
                                True, "black", "white")
-    OPPONENT_SCORE = FONT.render(f"   {opponent.score if opponent else 0}   ",
+    OPPONENT_SCORE = FONT.render(f"  {opponent.score if opponent else 0}  ",
                                  True, "black", "white")
 
     # Create rect objs for scores
@@ -81,7 +82,7 @@ def main():
             # Handle ball and wall collision
             # Update players' scores
             if event.type == HIT_WALL:
-                # Play score sound 
+                # Play score sound
                 SCORE_SOUND.play()
 
                 # Set x_dir for ball and update players' scores

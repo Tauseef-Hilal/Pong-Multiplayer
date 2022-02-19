@@ -120,7 +120,7 @@ class Server(Network):
                 if data and data == "!get":
                     players[client_idx] = game.players[client_idx]
                     temp = self.send(players[client_idx], client)
-                else:
+                elif data:
                     players[client_idx if len(clients) == 2 else -1] = data
                     temp = self.send(players[int(not client_idx)], client)
 

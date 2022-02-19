@@ -25,7 +25,7 @@ PADDLE_HEIGHT = 100
 MARGIN = 10
 
 # Score Font
-FONT_SIZE = 50
+FONT_SIZE = 30
 FONT = SysFont("", FONT_SIZE)
 
 # Sounds

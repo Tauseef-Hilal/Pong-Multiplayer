@@ -22,7 +22,7 @@ class Network:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             try:
-                self.socket.connect(("192.168.162.31", 5050))
+                self.socket.connect(("", 5050))
             except ConnectionRefusedError:
                 print("[ERROR] Server down.")
 
