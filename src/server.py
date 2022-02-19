@@ -114,7 +114,7 @@ class Server(Network):
             for client_idx, client in enumerate(clients):
                 try:
                     data = self.receive(conn=client)
-                except EOFError:
+                except (EOFError, ConnectionResetError):
                     data = None
 
                 if data and data == "!get":

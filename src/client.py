@@ -1,9 +1,9 @@
 import sys
 import pygame
 from classes import Network, Player, Ball
-from constants import (WIDTH, HEIGHT, CLOCK, MARGIN,
-                       PADDLE_WIDTH, PADDLE_HEIGHT,
-                       HIT_WALL)
+from constants import (WIDTH, HEIGHT, CLOCK, MARGIN, PADDLE_WIDTH,
+                       PADDLE_HEIGHT, HIT_WALL, FONT, SCORE_SOUND,
+                       PADDLE_SOUND)
 
 # Initialize
 pygame.init()
@@ -25,6 +25,28 @@ player.paddle.centery = HEIGHT // 2
 ball = Ball(0, 0, 20, 20)
 ball.centerx = WIDTH // 2
 ball.centery = HEIGHT // 2
+
+
+def display_score(player, opponent=None):
+    """Display players' scores"""
+
+    # Create Surfaces for scores
+    PLAYER_SCORE = FONT.render(f"   {player.score}   ",
+                               True, "black", "white")
+    OPPONENT_SCORE = FONT.render(f"   {opponent.score if opponent else 0}   ",
+                                 True, "black", "white")
+
+    # Create rect objs for scores
+    PLAYER_SCORE_RECT = PLAYER_SCORE.get_rect()
+    OPPONENT_SCORE_RECT = OPPONENT_SCORE.get_rect()
+
+    # Set rect coords to desired locations
+    PLAYER_SCORE_RECT.right = WIDTH // 2 - 1
+    OPPONENT_SCORE_RECT.left = WIDTH // 2 + 2
+
+    # Draw the recangles
+    WIN.blit(PLAYER_SCORE, PLAYER_SCORE_RECT)
+    WIN.blit(OPPONENT_SCORE, OPPONENT_SCORE_RECT)
 
 
 def get_opponent(player):
@@ -127,9 +149,13 @@ def main():
             # If ball_dir_reversed is True, then one of the players
             # has quit the game and the state needs to be reset
             if ball_dir_reversed:
+                player.score = 0
                 ball.x_velocity = 6
                 ball.y_velocity = 6
                 ball_dir_reversed = False
+
+        # Display score
+        display_score(player, opponent)
 
         # Draw player's paddle and ball
         pygame.draw.rect(WIN, "white", player.paddle)
