@@ -23,7 +23,7 @@ class Network:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             try:
-                self.socket.connect((socket.gethostname(), 5050))
+                self.socket.connect(("192.168.162.31", 5050))
             except ConnectionRefusedError:
                 print("[ERROR] Server down")
 
@@ -96,8 +96,18 @@ class Game:
 class Ball(Rect):
     "Ball class"
 
-    x_velocity = 6 * choice((1, -1))
-    y_velocity = 6 * choice((1, -1))
+    objectCount = 0
+    x_velocity = 6
+    y_velocity = 6
+
+    def __init__(self, left, top, width, height) -> None:
+        super().__init__(left, top, width, height)
+
+        Ball.objectCount += 1
+        if Ball.objectCount % 2 == 0:
+            self.x_velocity *= -1
+            self.y_velocity *= -1
+
 
     def animate(self):
         "Animate the ball"
