@@ -4,7 +4,6 @@
 
 import socket
 import pickle
-from random import choice
 from constants import WIDTH, HEIGHT
 from pygame import Rect, K_w, K_s
 
@@ -25,7 +24,7 @@ class Network:
             try:
                 self.socket.connect(("192.168.162.31", 5050))
             except ConnectionRefusedError:
-                print("[ERROR] Server down")
+                print("[ERROR] Server down.")
 
     def send(self, obj, conn=None) -> int:
         if not self._is_server:
@@ -55,7 +54,7 @@ class Player:
                  "score"]
 
     def __init__(self, name, player_id) -> None:
-        self.id = name + "_#" + player_id
+        self.id = player_id
         self.name = name
         self.paddle = None
         self.score = 0              # Not implemented yet
@@ -96,24 +95,14 @@ class Game:
 class Ball(Rect):
     "Ball class"
 
-    objectCount = 0
     x_velocity = 6
     y_velocity = 6
-
-    def __init__(self, left, top, width, height) -> None:
-        super().__init__(left, top, width, height)
-
-        Ball.objectCount += 1
-        if Ball.objectCount % 2 == 0:
-            self.x_velocity *= -1
-            self.y_velocity *= -1
-
 
     def animate(self):
         "Animate the ball"
 
         if self.left <= 0 or self.right >= WIDTH:
-            self.x_velocity = 0
+            self.x_velocity, self.y_velocity = 0, 0
         self.x += self.x_velocity
 
         if self.top <= 0 or self.bottom >= HEIGHT:

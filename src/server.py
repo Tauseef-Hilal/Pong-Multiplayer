@@ -4,8 +4,8 @@
     Server for the project
 """
 
+import sys
 import time
-from sys import exit
 from threading import Thread
 from classes import Network, Player, Game
 
@@ -47,16 +47,20 @@ class Server(Network):
     def _exit(self):
         """Exit server"""
         print("[SERVER] Exiting server!")
-        exit(time.sleep(1))
+        self.server.close()
+        sys.exit(time.sleep(1))
 
     def _listen(self):
         print("[SERVER] Waiting for Clients...")
         self.server.listen(10)
 
-        new_game = False
         while True:
-            conn, _ = self.server.accept()
-            print(f"[INFO] Client {conn.getsockname()} connected.")
+            try:
+                conn, _ = self.server.accept()
+            except ConnectionAbortedError:
+                break
+            
+            print(f"[INFO] Client {conn.getsockname()} Connected.")
 
             # Iterate through self._games and find
             # the game with a single player
@@ -66,7 +70,7 @@ class Server(Network):
                 else:
                     # Create player obj and append it to 'game.players' list
                     player_name = "X" if game.players[-1].name == "Y" else "Y"
-                    player_id = f"[{self._client_count + 1}]"
+                    player_id = game.players[-1].id + 1
 
                     game.players.append(Player(player_name, player_id))
                     game.clients.append(conn)
@@ -79,21 +83,18 @@ class Server(Network):
                 game = Game(game_id)
 
                 # Create a Player obj and add it to 'game.players' list
-                game.players.append(Player("X", f"[{self._client_count + 1}]"))
+                game.players.append(Player("X", self._client_count + 1))
                 game.clients = [conn]
 
                 # Add the game to self._games
                 self._games.append(game)
-                new_game = True
 
-            # Create a new thread for new games
-            if new_game:
+                # Create a new thread for the game
                 thread = Thread(target=self._handle_game,
                                 args=(game,),
                                 daemon=True,
                                 name=f"Thread (GameID: {game_id})")
                 thread.start()
-                new_game = False
 
             # Update client counter
             self._client_count += 1
@@ -124,7 +125,7 @@ class Server(Network):
                     players[client_idx] = 0
 
                     print("[INFO] Client",
-                          f"{client.getsockname()} disconnected.")
+                          f"{client.getsockname()} Disconnected.")
 
                     game.players.pop(client_idx)
                     game.clients.remove(client)

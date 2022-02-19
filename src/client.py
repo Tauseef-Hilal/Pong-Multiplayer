@@ -1,6 +1,5 @@
 import sys
 import pygame
-from random import choice
 from classes import Network, Player, Ball
 from constants import (WIDTH, HEIGHT, CLOCK, MARGIN,
                        PADDLE_WIDTH, PADDLE_HEIGHT,
@@ -34,7 +33,12 @@ def get_opponent(player):
     client.send(player)
 
     # Try to get opponent (Player obj) from the server
-    opponent = client.receive()
+    try:
+        opponent = client.receive()
+    except (EOFError, ConnectionResetError):
+        print("[ERROR] Server Down.")
+        client.socket.close()
+        sys.exit()
 
     # Return the opponent if it is a Player obj
     if isinstance(opponent, Player):
@@ -44,6 +48,9 @@ def get_opponent(player):
 def main():
     """The game loop"""
 
+    time_when_hit = 0
+    ball_xdir = 0
+    ball_dir_reversed = False
     while True:
         # Event loop
         for event in pygame.event.get():
@@ -55,9 +62,9 @@ def main():
             # If it has hit the right wall, set x_velocity to -1
             # otherwise, set it to 1
             if event.type == HIT_WALL:
-                ball.x_velocity = -1 if ball.centerx > WIDTH // 2 else 1
+                ball_xdir = -1 if ball.centerx > WIDTH // 2 else 1
                 ball.centerx, ball.centery = WIDTH // 2, HEIGHT // 2
-                ball.x_velocity *= 6
+                player.paddle.centery = HEIGHT // 2
 
         # Set black background and draw a line in the center
         WIN.fill("black")
@@ -67,9 +74,18 @@ def main():
         keys = pygame.key.get_pressed()
         player.move_paddle(keys)
 
-        # Raise HIT_WALL event if x_velocity is 0
-        if ball.x_velocity == 0:
+        # Raise HIT_WALL event if x_velocity and ball_xdir both are 0
+        if ball.x_velocity == ball_xdir == 0:
+            time_when_hit = pygame.time.get_ticks()
             pygame.event.post(pygame.event.Event(HIT_WALL))
+
+        # 1000ms after HIT_WALL
+        if pygame.time.get_ticks() - time_when_hit >= 1000 \
+                and ball.x_velocity == 0:
+            ball.x_velocity = ball_xdir * 6
+            ball.y_velocity = ball_xdir * 6
+            ball_xdir = 0
+            time_when_hit = 0
 
         # Check for collision with paddle
         if ball.colliderect(player.paddle):
@@ -83,10 +99,15 @@ def main():
         if opponent and opponent.paddle and opponent != player:
             opponent.paddle.right = WIDTH - MARGIN
             pygame.draw.rect(WIN, "white", opponent.paddle)
-            
+
+            # Set ball direction for player
+            if player.id < opponent.id and not ball_dir_reversed:
+                ball.x_velocity *= -1
+                ball_dir_reversed = True
+
             # Animate the ball and check for collisions
             ball.animate()
-        
+
         # Otherwise draw a new pygame.Rect obj on the right side
         # and place the ball at the center
         else:
@@ -95,7 +116,7 @@ def main():
                                          HEIGHT // 2 - PADDLE_HEIGHT // 2,
                                          PADDLE_WIDTH,
                                          PADDLE_HEIGHT))
-            
+
             ball.centerx, ball.centery = WIDTH // 2, HEIGHT // 2
 
         # Draw player's paddle and ball
