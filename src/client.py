@@ -48,8 +48,9 @@ def get_opponent(player):
 def main():
     """The game loop"""
 
-    time_when_hit = 0
     ball_xdir = 0
+    ball_ydir = 0
+    time_when_hit = 0
     ball_dir_reversed = False
     while True:
         # Event loop
@@ -63,6 +64,7 @@ def main():
             # otherwise, set it to 1
             if event.type == HIT_WALL:
                 ball_xdir = -1 if ball.centerx > WIDTH // 2 else 1
+                ball_ydir = -1 if ball.centery > HEIGHT // 2 else 1
                 ball.centerx, ball.centery = WIDTH // 2, HEIGHT // 2
                 player.paddle.centery = HEIGHT // 2
 
@@ -83,13 +85,9 @@ def main():
         if pygame.time.get_ticks() - time_when_hit >= 1000 \
                 and ball.x_velocity == 0:
             ball.x_velocity = ball_xdir * 6
-            ball.y_velocity = ball_xdir * 6
+            ball.y_velocity = ball_ydir * 6
             ball_xdir = 0
             time_when_hit = 0
-
-        # Check for collision with paddle
-        if ball.colliderect(player.paddle):
-            ball.x_velocity *= -1
 
         # Get opponent (Player obj) from the server
         opponent = get_opponent(player)
@@ -107,6 +105,8 @@ def main():
 
             # Animate the ball and check for collisions
             ball.animate()
+            if ball.collidelist([player.paddle, opponent.paddle]) != -1:
+                ball.x_velocity *= -1
 
         # Otherwise draw a new pygame.Rect obj on the right side
         # and place the ball at the center
@@ -118,6 +118,13 @@ def main():
                                          PADDLE_HEIGHT))
 
             ball.centerx, ball.centery = WIDTH // 2, HEIGHT // 2
+
+            # If ball_dir_reversed is True, then one of the players
+            # has quit the game and the state needs to be reset
+            if ball_dir_reversed:
+                ball.x_velocity = 6
+                ball.y_velocity = 6
+                ball_dir_reversed = False
 
         # Draw player's paddle and ball
         pygame.draw.rect(WIN, "white", player.paddle)

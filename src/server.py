@@ -32,7 +32,7 @@ class Server(Network):
 
         commands = {"!exit": self._exit,
                     "!active": self._show_active}
-
+        
         while True:
             cmd = input("")
 
@@ -59,7 +59,7 @@ class Server(Network):
                 conn, _ = self.server.accept()
             except ConnectionAbortedError:
                 break
-            
+
             print(f"[INFO] Client {conn.getsockname()} Connected.")
 
             # Iterate through self._games and find
@@ -70,7 +70,10 @@ class Server(Network):
                 else:
                     # Create player obj and append it to 'game.players' list
                     player_name = "X" if game.players[-1].name == "Y" else "Y"
-                    player_id = game.players[-1].id + 1
+                    if game.players[-1].id % 2 == 0:
+                        player_id = game.players[-1].id - 1
+                    else:
+                        player_id = game.players[-1].id + 1
 
                     game.players.append(Player(player_name, player_id))
                     game.clients.append(conn)
