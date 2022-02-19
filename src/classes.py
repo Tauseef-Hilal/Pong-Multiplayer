@@ -57,7 +57,7 @@ class Player:
         self.id = player_id
         self.name = name
         self.paddle = None
-        self.score = 0              # Not implemented yet
+        self.score = 0
 
     def move_paddle(self, keys: dict):
         """Control the paddle"""

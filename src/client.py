@@ -5,9 +5,6 @@ from constants import (WIDTH, HEIGHT, CLOCK, MARGIN, PADDLE_WIDTH,
                        PADDLE_HEIGHT, HIT_WALL, FONT, SCORE_SOUND,
                        PADDLE_SOUND)
 
-# Initialize
-pygame.init()
-
 # Set up the main window (surface)
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("PONG - MULTIPLAYER")
@@ -84,6 +81,9 @@ def main():
             # Handle ball and wall collision
             # Update players' scores
             if event.type == HIT_WALL:
+                # Play score sound 
+                SCORE_SOUND.play()
+
                 # Set x_dir for ball and update players' scores
                 if ball.centerx > WIDTH // 2:
                     ball_xdir = -1
@@ -133,6 +133,7 @@ def main():
             # Animate the ball and check for collisions
             ball.animate()
             if ball.collidelist([player.paddle, opponent.paddle]) != -1:
+                PADDLE_SOUND.play()
                 ball.x_velocity *= -1
 
         # Otherwise draw a new pygame.Rect obj on the right side

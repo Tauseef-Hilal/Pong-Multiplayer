@@ -4,6 +4,7 @@ from pygame.font import SysFont
 from pygame.mixer import Sound
 import pygame
 
+# Initialize pygame
 pygame.init()
 
 # Clock
