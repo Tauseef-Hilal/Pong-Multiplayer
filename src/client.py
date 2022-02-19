@@ -59,11 +59,16 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-            # Move ball to center if it has hit left or right wall
-            # If it has hit the right wall, set x_velocity to -1
-            # otherwise, set it to 1
+            # Handle ball and wall collision
+            # Update players' scores
             if event.type == HIT_WALL:
-                ball_xdir = -1 if ball.centerx > WIDTH // 2 else 1
+                # Set x_dir for ball and update players' scores
+                if ball.centerx > WIDTH // 2:
+                    ball_xdir = -1
+                    player.score += 1
+                else:
+                    ball_xdir = 1
+
                 ball_ydir = -1 if ball.centery > HEIGHT // 2 else 1
                 ball.centerx, ball.centery = WIDTH // 2, HEIGHT // 2
                 player.paddle.centery = HEIGHT // 2
