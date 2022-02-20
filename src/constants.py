@@ -1,6 +1,6 @@
 from pygame import time
 from pygame import USEREVENT
-from pygame.font import SysFont
+from pygame.font import Font
 from pygame.mixer import Sound
 import pygame
 
@@ -26,8 +26,16 @@ MARGIN = 10
 
 # Score Font
 FONT_SIZE = 30
-FONT = SysFont("", FONT_SIZE)
+FONT = Font("assets/font/bit5x3.ttf", FONT_SIZE)
 
 # Sounds
 SCORE_SOUND = Sound("assets/music/sfx/score.ogg")
 PADDLE_SOUND = Sound("assets/music/sfx/pong.ogg")
+
+# Create rect objs for scores
+PLAYER_SCORE_RECT = pygame.Rect(0, 0, 70, 30)
+OPPONENT_SCORE_RECT = pygame.Rect(0, 0, 70, 30)
+
+# Set rect coords to desired locations
+PLAYER_SCORE_RECT.right = WIDTH // 2 - 1
+OPPONENT_SCORE_RECT.left = WIDTH // 2 + 2

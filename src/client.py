@@ -3,7 +3,7 @@ import pygame
 from classes import Network, Player, Ball
 from constants import (WIDTH, HEIGHT, CLOCK, MARGIN, PADDLE_WIDTH,
                        PADDLE_HEIGHT, HIT_WALL, FONT, SCORE_SOUND,
-                       PADDLE_SOUND)
+                       PADDLE_SOUND, PLAYER_SCORE_RECT, OPPONENT_SCORE_RECT)
 
 # Set up the main window (surface)
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -29,22 +29,22 @@ def display_score(player, opponent=None):
     """Display players' scores"""
 
     # Create Surfaces for scores
-    PLAYER_SCORE = FONT.render(f"  {player.score}  ",
-                               True, "black", "white")
-    OPPONENT_SCORE = FONT.render(f"  {opponent.score if opponent else 0}  ",
-                                 True, "black", "white")
-
-    # Create rect objs for scores
-    PLAYER_SCORE_RECT = PLAYER_SCORE.get_rect()
-    OPPONENT_SCORE_RECT = OPPONENT_SCORE.get_rect()
-
-    # Set rect coords to desired locations
-    PLAYER_SCORE_RECT.right = WIDTH // 2 - 1
-    OPPONENT_SCORE_RECT.left = WIDTH // 2 + 2
+    PLAYER_SCORE = FONT.render(f"{player.score}", True, "black")
+    OPPONENT_SCORE = FONT.render(f"{opponent.score if opponent else 0}",
+                                 True, "black")
 
     # Draw the recangles
-    WIN.blit(PLAYER_SCORE, PLAYER_SCORE_RECT)
-    WIN.blit(OPPONENT_SCORE, OPPONENT_SCORE_RECT)
+    pygame.draw.rect(WIN, "white", PLAYER_SCORE_RECT)
+    pygame.draw.rect(WIN, "white", OPPONENT_SCORE_RECT)
+
+    # Draw scores on top of the rectangles
+    temp = PLAYER_SCORE.get_rect()
+    temp.center = PLAYER_SCORE_RECT.center
+    WIN.blit(PLAYER_SCORE, temp)
+
+    temp = OPPONENT_SCORE.get_rect()
+    temp.center = OPPONENT_SCORE_RECT.center
+    WIN.blit(OPPONENT_SCORE, temp)
 
 
 def get_opponent(player):
@@ -82,9 +82,6 @@ def main():
             # Handle ball and wall collision
             # Update players' scores
             if event.type == HIT_WALL:
-                # Play score sound
-                SCORE_SOUND.play()
-
                 # Set x_dir for ball and update players' scores
                 if ball.centerx > WIDTH // 2:
                     ball_xdir = -1
@@ -95,6 +92,9 @@ def main():
                 ball_ydir = -1 if ball.centery > HEIGHT // 2 else 1
                 ball.centerx, ball.centery = WIDTH // 2, HEIGHT // 2
                 player.paddle.centery = HEIGHT // 2
+
+                # Play score sound
+                SCORE_SOUND.play()
 
         # Set black background and draw a line in the center
         WIN.fill("black")
@@ -129,13 +129,13 @@ def main():
             # Set ball direction for player
             if player.id < opponent.id and not ball_dir_reversed:
                 ball.x_velocity *= -1
-                ball_dir_reversed = True
+            ball_dir_reversed = True
 
             # Animate the ball and check for collisions
             ball.animate()
             if ball.collidelist([player.paddle, opponent.paddle]) != -1:
-                PADDLE_SOUND.play()
                 ball.x_velocity *= -1
+                PADDLE_SOUND.play()
 
         # Otherwise draw a new pygame.Rect obj on the right side
         # and place the ball at the center
