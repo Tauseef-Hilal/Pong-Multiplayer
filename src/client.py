@@ -3,7 +3,8 @@ import pygame
 from classes import Network, Player, Ball
 from constants import (WIDTH, HEIGHT, CLOCK, MARGIN, PADDLE_WIDTH,
                        PADDLE_HEIGHT, HIT_WALL, FONT, SCORE_SOUND,
-                       PADDLE_SOUND, PLAYER_SCORE_RECT, OPPONENT_SCORE_RECT)
+                       PADDLE_SOUND, PLAYER_SCORE_RECT, OPPONENT_SCORE_RECT,
+                       BG_MUSIC)
 
 # Set up the main window (surface)
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -23,6 +24,7 @@ player.paddle.centery = HEIGHT // 2
 ball = Ball(0, 0, 20, 20)
 ball.centerx = WIDTH // 2
 ball.centery = HEIGHT // 2
+
 
 
 def display_score(player, opponent=None):
@@ -67,11 +69,16 @@ def get_opponent(player):
 
 def main():
     """The game loop"""
-
+    
     ball_xdir = 0
     ball_ydir = 0
     time_when_hit = 0
     ball_dir_reversed = False
+
+    # Start Background music
+    pygame.mixer.music.play(-1, 0, 1000)
+    music_playing = True
+
     while True:
         # Event loop
         for event in pygame.event.get():

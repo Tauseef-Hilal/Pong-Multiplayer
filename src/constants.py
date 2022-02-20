@@ -32,6 +32,9 @@ FONT = Font("assets/font/bit5x3.ttf", FONT_SIZE)
 SCORE_SOUND = Sound("assets/music/sfx/score.ogg")
 PADDLE_SOUND = Sound("assets/music/sfx/pong.ogg")
 
+# Music
+BG_MUSIC = pygame.mixer.music.load("assets/music/bg.mp3")
+
 # Create rect objs for scores
 PLAYER_SCORE_RECT = pygame.Rect(0, 0, 70, 30)
 OPPONENT_SCORE_RECT = pygame.Rect(0, 0, 70, 30)
