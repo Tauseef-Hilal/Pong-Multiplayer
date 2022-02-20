@@ -58,7 +58,7 @@ class Server(Network):
             try:
                 conn, _ = self.server.accept()
             except ConnectionAbortedError:
-                break
+                sys.exit()
 
             print(f"[INFO] Client {conn.getsockname()} Connected.")
 

@@ -2,10 +2,11 @@
     Classes -> [Network, Player, Game, Ball]
 """
 
+import sys
 import socket
 import pickle
 from constants import WIDTH, HEIGHT
-from pygame import Rect, K_w, K_s
+from pygame import Rect, Surface, K_w, K_s
 
 
 class Network:
@@ -25,6 +26,7 @@ class Network:
                 self.socket.connect(("", 5050))
             except ConnectionRefusedError:
                 print("[ERROR] Server down.")
+                sys.exit()
 
     def send(self, obj, conn=None) -> int:
         if not self._is_server:
@@ -95,8 +97,8 @@ class Game:
 class Ball(Rect):
     "Ball class"
 
-    x_velocity = 6
-    y_velocity = 6
+    x_velocity = 7
+    y_velocity = 7
 
     def animate(self):
         "Animate the ball"
@@ -110,4 +112,10 @@ class Ball(Rect):
         self.y += self.y_velocity
 
     def __repr__(self) -> str:
-        return f"<Ball => COORDS: ({self.x}, {self.y})>"
+        return f"<Ball => COORDS: {self.topleft}, " \
+            f"DIMENSIONS: {self.bottomright}>"
+
+    @classmethod
+    def from_img(cls, img: Surface):
+        img_rect = img.convert_alpha().get_rect()
+        return cls(*img_rect.topleft, *img_rect.bottomright)

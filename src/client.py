@@ -1,10 +1,11 @@
 import sys
 import pygame
+from random import randint
 from classes import Network, Player, Ball
 from constants import (WIDTH, HEIGHT, CLOCK, MARGIN, PADDLE_WIDTH,
                        PADDLE_HEIGHT, HIT_WALL, FONT, SCORE_SOUND,
-                       PADDLE_SOUND, PLAYER_SCORE_RECT, OPPONENT_SCORE_RECT,
-                       BG_MUSIC)
+                       PADDLE_SOUND, PLAYER_SCORE_RECT, BALL_IMG,
+                       OPPONENT_SCORE_RECT)
 
 # Set up the main window (surface)
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -21,11 +22,12 @@ player.paddle.left = MARGIN
 player.paddle.centery = HEIGHT // 2
 
 # Create a Ball obj
-ball = Ball(0, 0, 20, 20)
+ball = Ball.from_img(BALL_IMG)
 ball.centerx = WIDTH // 2
 ball.centery = HEIGHT // 2
 
-
+# Music (~ Different for each player)
+pygame.mixer.music.load(f"assets/music/Stage-{randint(1, 3)}.ogg")
 
 def display_score(player, opponent=None):
     """Display players' scores"""
@@ -36,8 +38,8 @@ def display_score(player, opponent=None):
                                  True, "black")
 
     # Draw the recangles
-    pygame.draw.rect(WIN, "white", PLAYER_SCORE_RECT)
-    pygame.draw.rect(WIN, "white", OPPONENT_SCORE_RECT)
+    pygame.draw.rect(WIN, "lightsteelblue", PLAYER_SCORE_RECT)
+    pygame.draw.rect(WIN, "lightsteelblue", OPPONENT_SCORE_RECT)
 
     # Draw scores on top of the rectangles
     temp = PLAYER_SCORE.get_rect()
@@ -69,15 +71,14 @@ def get_opponent(player):
 
 def main():
     """The game loop"""
-    
+
     ball_xdir = 0
     ball_ydir = 0
     time_when_hit = 0
     ball_dir_reversed = False
 
-    # Start Background music
-    pygame.mixer.music.play(-1, 0, 1000)
-    music_playing = True
+    # Play music
+    pygame.mixer.music.play(-1, 0, 2000)
 
     while True:
         # Event loop
@@ -103,9 +104,11 @@ def main():
                 # Play score sound
                 SCORE_SOUND.play()
 
-        # Set black background and draw a line in the center
-        WIN.fill("black")
-        pygame.draw.aaline(WIN, "white", (WIDTH // 2, 0), (WIDTH // 2, HEIGHT))
+        # Set up background
+        WIN.fill("grey5")
+        pygame.draw.aaline(WIN, "lightsteelblue2",
+                           (WIDTH // 2, 0),
+                           (WIDTH // 2, HEIGHT))
 
         # Control the paddle
         keys = pygame.key.get_pressed()
@@ -119,8 +122,8 @@ def main():
         # 1000ms after HIT_WALL
         if pygame.time.get_ticks() - time_when_hit >= 1000 \
                 and ball.x_velocity == 0:
-            ball.x_velocity = ball_xdir * 6
-            ball.y_velocity = ball_ydir * 6
+            ball.x_velocity = ball_xdir * 7
+            ball.y_velocity = ball_ydir * 7
             ball_xdir = 0
             time_when_hit = 0
 
@@ -131,7 +134,7 @@ def main():
         # the two players are different Player objs
         if opponent and opponent.paddle and opponent != player:
             opponent.paddle.right = WIDTH - MARGIN
-            pygame.draw.rect(WIN, "white", opponent.paddle)
+            pygame.draw.rect(WIN, "lightsteelblue2", opponent.paddle)
 
             # Set ball direction for player
             if player.id < opponent.id and not ball_dir_reversed:
@@ -147,7 +150,7 @@ def main():
         # Otherwise draw a new pygame.Rect obj on the right side
         # and place the ball at the center
         else:
-            pygame.draw.rect(WIN, "white",
+            pygame.draw.rect(WIN, "lightsteelblue2",
                              pygame.Rect(WIDTH - (PADDLE_WIDTH + MARGIN),
                                          HEIGHT // 2 - PADDLE_HEIGHT // 2,
                                          PADDLE_WIDTH,
@@ -159,16 +162,17 @@ def main():
             # has quit the game and the state needs to be reset
             if ball_dir_reversed:
                 player.score = 0
-                ball.x_velocity = 6
-                ball.y_velocity = 6
+                ball.x_velocity = 7
+                ball.y_velocity = 7
                 ball_dir_reversed = False
 
         # Display score
         display_score(player, opponent)
 
         # Draw player's paddle and ball
-        pygame.draw.rect(WIN, "white", player.paddle)
-        pygame.draw.ellipse(WIN, "white", ball)
+        pygame.draw.rect(WIN, "lightsteelblue2", player.paddle)
+        WIN.blit(BALL_IMG, ball)
+        # pygame.draw.ellipse(WIN, "white", ball)
 
         # Update the display (60 times/s)
         pygame.display.update()

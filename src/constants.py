@@ -19,7 +19,7 @@ HEIGHT = 720
 
 # Paddle dimensions
 PADDLE_WIDTH = 10
-PADDLE_HEIGHT = 100
+PADDLE_HEIGHT = 110
 
 # Space between Paddle and wall
 MARGIN = 10
@@ -32,9 +32,6 @@ FONT = Font("assets/font/bit5x3.ttf", FONT_SIZE)
 SCORE_SOUND = Sound("assets/music/sfx/score.ogg")
 PADDLE_SOUND = Sound("assets/music/sfx/pong.ogg")
 
-# Music
-BG_MUSIC = pygame.mixer.music.load("assets/music/bg.mp3")
-
 # Create rect objs for scores
 PLAYER_SCORE_RECT = pygame.Rect(0, 0, 70, 30)
 OPPONENT_SCORE_RECT = pygame.Rect(0, 0, 70, 30)
@@ -42,3 +39,6 @@ OPPONENT_SCORE_RECT = pygame.Rect(0, 0, 70, 30)
 # Set rect coords to desired locations
 PLAYER_SCORE_RECT.right = WIDTH // 2 - 1
 OPPONENT_SCORE_RECT.left = WIDTH // 2 + 2
+
+# Ball image
+BALL_IMG = pygame.image.load("assets/img/Ball.png")
